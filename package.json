@@ -1,0 +1,24 @@
+{
+  "name": "bitter",
+  "version": "1.0.0",
+  "description": "an ios device web inspector",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FreadXX/Bitter.git"
+  },
+  "keywords": [
+    "node",
+    "ios",
+    "web"
+  ],
+  "author": "FreadXX",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FreadXX/Bitter/issues"
+  },
+  "homepage": "https://github.com/FreadXX/Bitter#readme"
+}
