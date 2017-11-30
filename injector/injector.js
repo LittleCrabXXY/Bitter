@@ -3,6 +3,9 @@ const imageInfo = require('./imageinfo/imageInfo.js');
 
 
 
-let handler = () => {
-
+module.exports = {
+    injectors: [
+        domInfo,
+        imageInfo
+    ]
 }

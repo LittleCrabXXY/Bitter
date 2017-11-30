@@ -1,5 +1,11 @@
+const path = require('path');
+const fs = require('fs');
+
 const CDP = require('chrome-remote-interface');
+
 const injector = require('./injector/injector.js');
+const requestAnalysers = require('./requesthandler/requesthandler.js');
+const responseAnalysers = require('./responsehanlder/responsehandler.js');
 
 
 const options = {
@@ -8,57 +14,42 @@ const options = {
 }
 
 // 从injector中获取需要启用的injector
-const injectors = [];
+const injectors = injector.injectors;
 
+
+let dumpJson = (filename, content) => {
+    let filepath = path.join(__dirname, filename);
+    let fileContent = []
+    if (fs.existsSync(filepath)) {
+        fileContent = JSON.parse(fs.readFileSync(filepath));
+    }
+    fileContent += content;
+    fs.writeFileSync(filepath, fileContent);
+};
 
 let requestHandler = params => {
     console.log(params);
+    let result = requestAnalysers.handle(params);
+    dumpJson('./request.json', result);
 };
 
 let responseHandler = params => {
     console.log(params);
-}
+    let result = responseAnalysers.handle(params);
+    dumpJson('./response.json', result);
+};
 
 // wrap promise
 
 CDP(options, (client) => {
     const {Runtime, Network, Page} = client;
-    const events = [];
-
-    Network.requestWillBeSent(params => {
-        requestHandler(params);
-    });
-
-    Network.responseReceived(params => {
-        responseHandler(params);
-    });
-
-    Page.loadEventFired(() => {
-
-    });
-
-    Promise.all([
-        Network.enable(),
-        Page.enable()
-    ]).then(() => {
-        Page.navigate({
-            url: url
-        })
-    }).all([
-        // 处理js注入请求
-    ]).then(() => {
-        client.close();
-    }).catch((err) => {
-        console.error(err);
-        client.close();
-    });
-
-    var wrapper = function(expression, handler) {
+    let events = [];
+    let wrapper = function(injector) {
         return new Promise((resolve, reject) => {
             Runtime.evaluate({
-                expression: expression
+                expression: injector.expression
             }).then(result => {
-                handler(result);
+                injector.handler(result);
                 resolve(result);
             }).catch(error => {
                 reject(error);
@@ -66,9 +57,50 @@ CDP(options, (client) => {
         });
     };
 
-})
+    injectors.forEach(injector => {
+        events += wrapper(injector);
+    });
 
-// 将js注入请求封装成Promise
+    Network.requestWillBeSent(params => {
+        // request拦截请求
+        requestHandler(params);
+    });
+
+    Network.responseReceived(params => {
+        // resposne 拦截请求
+        responseHandler(params);
+    });
+
+    Page.loadEventFired(() => {
+        
+    });
+
+    Page.domContentEventFired(() => {
+        console.log(`dom load complete`);
+    });
+
+    Promise.all([
+        Network.enable(),
+        Page.enable()
+    ]).then(() => {
+        // 访问指定url
+        Page.navigate({
+            url: process.argv[2]
+        })
+    }).then(() => {
+        Promise.all(events).then(() => {
+            console.log('inject js success')
+        }).catch(error => {
+            console.error(`injector execute fail, error is ${error}`);
+        });
+    }
+    ).then(() => {
+        // client.close();
+    }).catch((err) => {
+        console.error(err);
+        client.close();
+    });
+});
 
 
 

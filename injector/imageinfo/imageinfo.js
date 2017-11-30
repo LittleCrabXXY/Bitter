@@ -1,6 +1,7 @@
 const fs = require('fs');
+const path = require('path');
 
-let script = fs.readFileSync('image.js');
+let script = fs.readFileSync(path.join(__dirname, './image.js'));
 let expression = String.fromCharCode.apply(null, script);
 
 let handler = (result) => {
