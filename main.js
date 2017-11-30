@@ -5,7 +5,7 @@ const CDP = require('chrome-remote-interface');
 
 const injector = require('./injector/injector.js');
 const requestAnalysers = require('./requesthandler/requesthandler.js');
-const responseAnalysers = require('./responsehanlder/responsehandler.js');
+const responseAnalysers = require('./responsehandler/responsehandler.js');
 
 
 const options = {
@@ -28,15 +28,17 @@ let dumpJson = (filename, content) => {
 };
 
 let requestHandler = params => {
-    console.log(params);
+    // console.log(params);
     let result = requestAnalysers.handle(params);
-    dumpJson('./request.json', result);
+    console.log(result);
+    // dumpJson('./request.json', result);
 };
 
 let responseHandler = params => {
-    console.log(params);
+    // console.log(params);
     let result = responseAnalysers.handle(params);
-    dumpJson('./response.json', result);
+    console.log(result);
+    // dumpJson('./response.json', result);
 };
 
 // wrap promise
@@ -75,8 +77,8 @@ CDP(options, (client) => {
         
     });
 
-    Page.domContentEventFired(() => {
-        console.log(`dom load complete`);
+    Page.domContentEventFired((timestamp) => {
+        console.log(`dom ready, time is ${timestamp}`);
     });
 
     Promise.all([
@@ -86,6 +88,7 @@ CDP(options, (client) => {
         // 访问指定url
         Page.navigate({
             url: process.argv[2]
+            // url: 'https://github.com'
         })
     }).then(() => {
         Promise.all(events).then(() => {

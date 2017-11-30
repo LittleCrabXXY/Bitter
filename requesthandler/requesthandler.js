@@ -1,7 +1,8 @@
 const extend = require('extend');
 
-const requesthandlers = [];
+const basehandler = require('./base.js');
 
+const requesthandlers = [basehandler];
 
 let handle = (request) => {
     let result = {}
