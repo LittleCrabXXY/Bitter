@@ -9,7 +9,7 @@ const responseAnalysers = require('./responsehandler/responsehandler.js');
 
 
 const options = {
-    chooseTab: 'ws://localhost:9222/devtools/page/1',
+    chooseTab: 'ws://localhost:9224/devtools/page/1',
     local: true
 }
 
@@ -73,12 +73,12 @@ CDP(options, (client) => {
         responseHandler(params);
     });
 
-    Page.loadEventFired(() => {
-        
+    Page.loadEventFired((timestamp) => {
+        console.log(`dom load ready, time is ${timestamp.timestamp}`);
     });
 
     Page.domContentEventFired((timestamp) => {
-        console.log(`dom ready, time is ${timestamp}`);
+        console.log(`dom content event ready, time is ${timestamp.timestamp}`);
     });
 
     Promise.all([
@@ -87,8 +87,8 @@ CDP(options, (client) => {
     ]).then(() => {
         // 访问指定url
         Page.navigate({
-            url: process.argv[2]
-            // url: 'https://github.com'
+            // url: process.argv[2]
+            url: 'https://github.com'
         })
     }).then(() => {
         Promise.all(events).then(() => {
