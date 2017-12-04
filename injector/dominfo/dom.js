@@ -21,3 +21,5 @@ function getDomInfo() {
 
     return JSON.stringify(dom);
 }
+
+getDomInfo();

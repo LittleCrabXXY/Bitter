@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-
+const EventEmitter = require('events');
 const CDP = require('chrome-remote-interface');
 
 const injector = require('./injector/injector.js');
@@ -17,28 +17,29 @@ const injectors = injector.injectors;
 
 let injectorResult = {}
 
-let dumpJson = (filename, content) => {
-    let filepath = path.join(__dirname, filename);
-    let fileContent = []
-    if (fs.existsSync(filepath)) {
-        fileContent = JSON.parse(fs.readFileSync(filepath));
-    }
-    fileContent += content;
-    fs.writeFileSync(filepath, fileContent);
-};
+// 初始化eventEmitter用于处理request和response
+let event = new EventEmitter();
+let requestResult = [];
+let responseResult = [];
+event.on('request_new', function(result) {
+    requestResult.push(result);
+    fs.writeFileSync(path.join(__dirname, 'request.json'), JSON.stringify(requestResult));
+});
+event.on('response_new', function(result) {
+    responseResult.push(result);
+    fs.writeFileSync(path.join(__dirname, 'response.json'), JSON.stringify(responseResult));
+})
 
 let requestHandler = params => {
-    // console.log(params);
     let result = requestAnalysers.handle(params);
     console.log(result);
-    // dumpJson('./request.json', result);
+    event.emit('request_new', result);
 };
 
 let responseHandler = params => {
-    // console.log(params);
     let result = responseAnalysers.handle(params);
     console.log(result);
-    // dumpJson('./response.json', result);
+    event.emit('response_new', result);
 };
 
 CDP(options, (client) => {
@@ -93,7 +94,8 @@ CDP(options, (client) => {
         })
     }).then(() => {
         Promise.all(events).then(() => {
-            console.log('inject js success')
+            console.log('inject js success');
+            fs.writeFileSync('injector.json', JSON.stringify(injectorResult));
         }).catch(error => {
             console.error(`injector execute fail, error is ${error}`);
         });
