@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const path = require('path');
 const fs = require('fs');
 const EventEmitter = require('events');
@@ -23,11 +24,11 @@ let requestResult = [];
 let responseResult = [];
 event.on('request_new', function(result) {
     requestResult.push(result);
-    fs.writeFileSync(path.join(__dirname, 'request.json'), JSON.stringify(requestResult));
+    fs.writeFileSync(path.join(process.argv[4], 'request.json'), JSON.stringify(requestResult));
 });
 event.on('response_new', function(result) {
     responseResult.push(result);
-    fs.writeFileSync(path.join(__dirname, 'response.json'), JSON.stringify(responseResult));
+    fs.writeFileSync(path.join(process.argv[4], 'response.json'), JSON.stringify(responseResult));
 })
 
 let requestHandler = params => {
@@ -90,12 +91,11 @@ CDP(options, (client) => {
         // 访问指定url
         Page.navigate({
             url: process.argv[2]
-            // url: 'https://github.com'
         })
     }).then(() => {
         Promise.all(events).then(() => {
             console.log('inject js success');
-            fs.writeFileSync('injector.json', JSON.stringify(injectorResult));
+            fs.writeFileSync(path.join(process.argv[4], 'injector.json'), JSON.stringify(injectorResult));
         }).catch(error => {
             console.error(`injector execute fail, error is ${error}`);
         });

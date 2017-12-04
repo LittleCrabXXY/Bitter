@@ -2,7 +2,6 @@
   "name": "bitter",
   "version": "1.0.0",
   "description": "an ios device web inspector",
-  "main": "index.js",
   "scripts": {
     "test": "test"
   },
@@ -15,6 +14,9 @@
     "ios",
     "web"
   ],
+  "bin": {
+    "bitter": "main.js"
+  },
   "author": "FreadXX",
   "license": "ISC",
   "bugs": {
