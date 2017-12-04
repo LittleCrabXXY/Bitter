@@ -6,12 +6,13 @@ let expression = String.fromCharCode.apply(null, script);
 
 
 let handler = (result) => {
-    // console.log(`memory is ${result.memory}`);
-    // console.log(`timing is ${result.timing}`);
     console.log(`performance is ${result.result.value}`);
+    return JSON.parse(result.result.value);
+
 }
 
 module.exports = {
+    name: 'performance',
     expression: expression,
     handler: handler
 }

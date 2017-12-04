@@ -7,15 +7,15 @@ const injector = require('./injector/injector.js');
 const requestAnalysers = require('./requesthandler/requesthandler.js');
 const responseAnalysers = require('./responsehandler/responsehandler.js');
 
-
 const options = {
-    chooseTab: 'ws://localhost:9224/devtools/page/1',
+    chooseTab: process.argv[3],
     local: true
 }
 
 // 从injector中获取需要启用的injector
 const injectors = injector.injectors;
 
+let injectorResult = {}
 
 let dumpJson = (filename, content) => {
     let filepath = path.join(__dirname, filename);
@@ -41,19 +41,20 @@ let responseHandler = params => {
     // dumpJson('./response.json', result);
 };
 
-// wrap promise
-
 CDP(options, (client) => {
     const {Runtime, Network, Page} = client;
     let events = [];
+
+    // wrap injector to a promise
     let wrapper = function(injector) {
         return new Promise((resolve, reject) => {
             Runtime.evaluate({
                 expression: injector.expression
             }).then(result => {
-                injector.handler(result);
+                injectorResult[injector.name] = injector.handler(result);
                 resolve(result);
             }).catch(error => {
+                console.error(`injector ${injector.name} error, the message is ${error}`);
                 reject(error);
             });
         });
@@ -87,8 +88,8 @@ CDP(options, (client) => {
     ]).then(() => {
         // 访问指定url
         Page.navigate({
-            // url: process.argv[2]
-            url: 'https://github.com'
+            url: process.argv[2]
+            // url: 'https://github.com'
         })
     }).then(() => {
         Promise.all(events).then(() => {

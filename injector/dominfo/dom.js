@@ -1,7 +1,7 @@
 function getDomInfo() {
     let elementList = document.querySelectorAll('*');
     // dom 节点数量
-    let domnumbers = elementList.length;
+    let domNumbers = elementList.length;
 
     // dom max depth
     function getMaxNestLevel() {
@@ -15,5 +15,9 @@ function getDomInfo() {
 
 
     let dom = {};
+    dom.dom = document.documentElement.outerHTML;
+    dom.domNumbers = domNumbers;
+    dom.maxDepth = getMaxNestLevel()
 
+    return JSON.stringify(dom);
 }
