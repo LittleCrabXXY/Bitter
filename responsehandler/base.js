@@ -78,6 +78,7 @@ let handle = (response) => {
         status: response.response.status,
         mimeType: response.response.mimeType,
         source: response.response.source,
+        size: response.response.headers['Content-Length']
     }
 
     if (result.source === 'network') {
