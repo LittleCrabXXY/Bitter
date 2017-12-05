@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/FreadXX/Bitter/issues"
   },
-  "homepage": "https://github.com/FreadXX/Bitter#readme"
+  "homepage": "https://github.com/FreadXX/Bitter#readme",
+  "dependencies": {
+    "idevicekit": "^0.2.7"
+  }
 }

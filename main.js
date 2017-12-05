@@ -8,10 +8,14 @@ const injector = require('./injector/injector.js');
 const requestAnalysers = require('./requesthandler/requesthandler.js');
 const responseAnalysers = require('./responsehandler/responsehandler.js');
 
+const deviceKit = require('./devicekit.js');
+
 const options = {
     chooseTab: process.argv[3],
     local: true
 }
+const resultDir = process.argv[4];
+const deviceSerial = process.argv[5];
 
 // 从injector中获取需要启用的injector
 const injectors = injector.injectors;
@@ -78,10 +82,12 @@ CDP(options, (client) => {
 
     Page.loadEventFired((timestamp) => {
         console.log(`dom load ready, time is ${timestamp.timestamp}`);
+        deviceKit.screenshot(deviceSerial, path.join(resultDir, 'h5_domload.png'));
     });
 
     Page.domContentEventFired((timestamp) => {
         console.log(`dom content event ready, time is ${timestamp.timestamp}`);
+        deviceKit.screenshot(deviceSerial, path.join(resultDir, 'h5_domcontent.png'));
     });
 
     Promise.all([
@@ -89,13 +95,14 @@ CDP(options, (client) => {
         Page.enable()
     ]).then(() => {
         // 访问指定url
+        deviceKit.screenshot(deviceSerial, path.join(resultDir, 'h5_ready.png'));
         Page.navigate({
             url: process.argv[2]
         })
     }).then(() => {
         Promise.all(events).then(() => {
             console.log('inject js success');
-            fs.writeFileSync(path.join(process.argv[4], 'injector.json'), JSON.stringify(injectorResult));
+            fs.writeFileSync(path.join(resultDir, 'injector.json'), JSON.stringify(injectorResult));
         }).catch(error => {
             console.error(`injector execute fail, error is ${error}`);
         });
