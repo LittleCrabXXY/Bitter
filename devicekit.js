@@ -1,6 +1,5 @@
 const idevicekit = require('idevicekit');
 const fs = require('fs');
-const sharp = require('sharp');
 
 let screenshot = (serial, resultFilePath) => {
     return idevicekit.screencap(serial).then((screenshotStream) => {

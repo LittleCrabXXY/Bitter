@@ -75,7 +75,7 @@
 // type: 'XHR' }
 
 let handle = (request) => {
-    result = {
+    let result = {
         id: request.requestId,
         url: request.request.url,
         type: request.type,
