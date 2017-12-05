@@ -33,7 +33,7 @@ event.on('request_new', function(result) {
 event.on('response_new', function(result) {
     responseResult.push(result);
     fs.writeFileSync(path.join(process.argv[4], 'response.json'), JSON.stringify(responseResult));
-})
+});
 
 let requestHandler = params => {
     let result = requestAnalysers.handle(params);
